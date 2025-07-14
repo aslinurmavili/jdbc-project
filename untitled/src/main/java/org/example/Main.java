@@ -22,6 +22,14 @@ public class Main {
             Statement statement=connection.createStatement();
             statement.execute(sql);
             System.out.println("Table creaed");
+            //veri ekleme
+            String insertSql="INSERT INTO users (name,email) VALUES(?,?)";
+            PreparedStatement preparedStatement=connection.prepareStatement(insertSql);
+            preparedStatement.setString(1, "Aslı");
+            preparedStatement.setString(2, "asli@mail.com");
+            preparedStatement.executeUpdate();
+            System.out.println("kayıt Eklendi.");
+
             statement.close();
             connection.close();
         }catch (Exception e){
