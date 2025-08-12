@@ -40,5 +40,22 @@ public class Main {
             try { if (deleteStmt != null) deleteStmt.close(); } catch (SQLException e) { e.printStackTrace(); }
             try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
         }
+
+        UserDAO userDAO = new UserDAO();
+
+        // Yeni kullanıcı ekle
+        userDAO.save(new User(0, "Ahmet", "ahmet@mail.com"));
+
+        // Tüm kullanıcıları yazdır
+        for (User u : userDAO.findAll()) {
+            System.out.println(u.getId() + " - " + u.getName() + " - " + u.getEmail());
+        }
+
+        // Kullanıcı güncelle
+        User userToUpdate = new User(1, "Ahmet Yılmaz", "ahmety@mail.com");
+        userDAO.update(userToUpdate);
+
+        // Kullanıcı sil
+        userDAO.delete(2);
     }
 }
