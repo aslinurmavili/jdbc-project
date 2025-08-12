@@ -1,39 +1,46 @@
-package org.example;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.SQLException;
 
-import org.example.config.DataBaseConfig;
-
-import java.sql.*;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.Executor;
-
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        String sql="CREATE TABLE IF NOT EXISTS users("+
-                "id SERIAL PRIMARY KEY," +
-                "name VARCHAR(100)," +
-                "email VARCHAR (100))";
+        // Veritabanı bağlantı bilgileri
+        String url = "jdbc:postgresql://localhost:5432/jdbc";
+        String user = "postgres";
+        String password = "1";
+
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
 
         try {
-            Connection connection=DriverManager.getConnection(DataBaseConfig.DATABASE_URL,
-                    DataBaseConfig.DATABASE_USERNAME,DataBaseConfig.PASSWORD);
-            Statement statement=connection.createStatement();
-            statement.execute(sql);
-            System.out.println("Table creaed");
-            //veri ekleme
-            String insertSql="INSERT INTO users (name,email) VALUES(?,?)";
-            PreparedStatement preparedStatement=connection.prepareStatement(insertSql);
-            preparedStatement.setString(1, "Aslı");
-            preparedStatement.setString(2, "asli@mail.com");
-            preparedStatement.executeUpdate();
-            System.out.println("kayıt Eklendi.");
+            // Bağlantıyı aç
+            conn = DriverManager.getConnection(url, user, password);
 
-            statement.close();
-            connection.close();
-        }catch (Exception e){
+            // Statement oluştur
+            stmt = conn.createStatement();
+
+            // Sorguyu çalıştır
+            String sql = "SELECT * FROM users";
+            rs = stmt.executeQuery(sql);
+
+            // ResultSet ile satırları oku
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+
+                System.out.println("ID: " + id + ", Name: " + name + ", Email: " + email);
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            // Kaynakları kapat
+            try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+            try { if (stmt != null) stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+            try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
         }
     }
 }
