@@ -1,45 +1,43 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) {
-        // Veritabanı bağlantı bilgileri
         String url = "jdbc:postgresql://localhost:5432/jdbc";
         String user = "postgres";
         String password = "1";
 
         Connection conn = null;
-        Statement stmt = null;
-        ResultSet rs = null;
+        PreparedStatement updateStmt = null;
+        PreparedStatement deleteStmt = null;
 
         try {
-            // Bağlantıyı aç
             conn = DriverManager.getConnection(url, user, password);
 
-            // Statement oluştur
-            stmt = conn.createStatement();
+            // 1. Güncelleme işlemi
+            String updateSql = "UPDATE users SET name = ? WHERE id = ?";
+            updateStmt = conn.prepareStatement(updateSql);
+            updateStmt.setString(1, "Yeni İsim");
+            updateStmt.setInt(2, 1);
 
-            // Sorguyu çalıştır
-            String sql = "SELECT * FROM users";
-            rs = stmt.executeQuery(sql);
+            int updateCount = updateStmt.executeUpdate();
+            System.out.println("Güncellenen satır sayısı: " + updateCount);
 
-            // ResultSet ile satırları oku
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String name = rs.getString("name");
-                String email = rs.getString("email");
+            // 2. Silme işlemi
+            String deleteSql = "DELETE FROM users WHERE id = ?";
+            deleteStmt = conn.prepareStatement(deleteSql);
+            deleteStmt.setInt(1, 2);
 
-                System.out.println("ID: " + id + ", Name: " + name + ", Email: " + email);
-            }
+            int deleteCount = deleteStmt.executeUpdate();
+            System.out.println("Silinen satır sayısı: " + deleteCount);
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            // Kaynakları kapat
-            try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-            try { if (stmt != null) stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+            try { if (updateStmt != null) updateStmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+            try { if (deleteStmt != null) deleteStmt.close(); } catch (SQLException e) { e.printStackTrace(); }
             try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
         }
     }
